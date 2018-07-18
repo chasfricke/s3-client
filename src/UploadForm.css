@@ -1,0 +1,28 @@
+.s3 {
+    form {
+        max-width: 30rem;
+        label {
+            font-size: 1rem;
+        }
+        input {
+            padding: 1.5rem 1rem;
+            width: 100%;
+            border: none;
+            box-shadow: 0px 0px 4px $light-grey;
+            border-radius: 4px;
+            &[type=submit] {
+                margin-top: 1rem;
+                font-size: 1rem;
+                width: 100%;
+                background-color: $primary-color-medium;
+                color: $white;
+                border: none;
+                box-shadow: 1px 1px 4px hsl(0, 0%, 50%);
+                cursor: pointer;
+                &:hover {
+                    background-color: lighten($primary-color-medium, 10%);
+                }
+            }
+        }
+    }
+}
