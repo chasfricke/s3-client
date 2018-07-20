@@ -1,52 +1,80 @@
 import React, { Component } from 'react';
 import './UploadForm.css';
+import axios from 'axios';
 
 
 class UploadForm extends Component {
     constructor(props){
         super(props);
-        this.state = {value: ''};
+        this.state = {};
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
    
     handleChange(event) {
-        this.setState({value: event.target.value});
+        event.preventDefault()
+		const value = event.target.value;
+		const name = event.target.name;
+		
+		this.setState({[name]: value});
     }
 
     handleSubmit(event) {
-        console.log('The following file was submitted ' + this.state.value);
         event.preventDefault();
-
-        const URL = "";
-        const formData = new FormData(event.target);
-        fetch(URL, {
-            method: "POST",
-            // This contains the file to be uploaded
-            body: new FormData(event.target)
-        }).then(response => response.json())
-        .then(({data, error}) => {
-            const message = error
-            // If there was an error, show it
-            ? console.log(`There was an error: ${error}`)
-            // Otherwise, show the URL of the uploaded file
-            : console.log(`File was uploaded to: <a href="${data}">${data}</a>`)
-        }).catch(error => {
-            // If there was a problem, show the error message
-            console.log(`<p>There was an error: ${error.message}`);
-        });
-
-
+        window.scroll(0,0)
+        const data = this.state;
+        (this.state.file_upload_url ? this.uploadImage() : this.addItemData())
     }
+
+    addItemData = (data) => {
+        console.log("add item data started")
+        var formData = this.state
+        console.log(formData)
+        fetch('https://s3-upload-tutorial.herokuapp.com/files', {
+            method: 'POST',
+            body:JSON.stringify(formData),
+            headers: new Headers({
+                'Content-Type': 'application/json'
+            })
+        })  
+            .then(res => res.json())
+            .catch(error => console.error('Error:', error.response))
+    }
+
+    handleImageChange = (event) => {
+        console.log(event.target.files[0])
+        const file = event.target.files[0];
+        this.setState({"file_upload_url": event.target.files[0]})
+    }
+
+    uploadImage = (event) => {
+        const formData = new FormData();
+        formData.append('enctype', 'multipart/form-data');
+        formData.append('file', this.state.file_upload_url );
+        console.log(formData)
+        axios.post('https://s3-upload-tutorial.herokuapp.com/upload', formData)
+          .then(resp => {
+              this.setState({file_upload_url: resp.data.data}, () => {
+                  this.addItemData()
+              })
+          })
+        .catch(error=>console.log(error.response))
+      }
+      
+    
   
     render() {
     return (
     <div className="s3">
         <form encType="multipart/form-data" onSubmit={this.handleSubmit}>
-            <label htmlFor="file">File</label>
-            <input id="file" name="file" type="file" value = {this.state.value} onChange={this.handleChange} required />
-            <input type="submit" value="Submit" />
+            <input type="text" name ="name" placeholder="image title" value={this.state.name} onChange={this.handleChange} required />
+            <br/><br/>
+            <textarea type="text" name ="description" placeholder="description" value={this.state.description} onChange={this.handleChange} required />
+            <br/><br/>
+            <input id="file" name="file" type="file" value={this.state.file} onChange={this.handleImageChange} required />
+            <br/><br/>
+            <input type="submit" value="Upload" />
         </form>
     </div>
     );

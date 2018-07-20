@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import UploadForm from './UploadForm';
+import ImageList from './ImageList';
 
 class App extends Component {
   render() {
@@ -11,6 +12,9 @@ class App extends Component {
         </header>
         <br/>
        <UploadForm />
+       <br/>
+       <br/>
+       <ImageList />
       </div>
     );
   }
